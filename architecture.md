@@ -127,11 +127,11 @@ graph TB
 graph TB
     subgraph "Express.js Backend Structure"
         subgraph "HTTP Layer"
-            R1[/api/briefings/:date<br/>GET]
-            R2[/api/briefings/generate<br/>POST]
-            R3[/api/stories/:id/read<br/>PATCH]
-            R4[/api/chat<br/>POST - Phase 5]
-            R5[/api/cron/generate-briefing<br/>POST - Internal]
+            R1[/api/briefings/:date<br/>GET/]
+            R2[/api/briefings/generate<br/>POST/]
+            R3[/api/stories/:id/read<br/>PATCH/]
+            R4[/api/chat<br/>POST - Phase 5/]
+            R5[/api/cron/generate-briefing<br/>POST - Internal/]
         end
         
         subgraph "Middleware"
