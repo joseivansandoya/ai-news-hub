@@ -1,14 +1,12 @@
 import express, { Request, Response } from 'express';
-import dotenv from 'dotenv';
 
+import { config } from '@/config/backend';
 import briefingsRouter from '@/routes/briefings.route';
 import healthRouter from '@/routes/health.route';
 import storiesRouter from '@/routes/stories.route';
 
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 3005;
+const PORT = config.port;
 
 // Middleware
 app.use(express.json());
