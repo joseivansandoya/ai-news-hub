@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { BaseRepository } from '@/repositories/BaseRepository';
 import { Briefing, CreateBriefingDTO, UpdateBriefingDTO } from '@/types';
 
-export class BriefingRepository extends BaseRepository {
+export class BriefingsRepository extends BaseRepository {
   constructor(pool: Pool) {
     super(pool);
   }

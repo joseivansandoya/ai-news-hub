@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { BriefingRepository } from '@/repositories/BriefingRepository';
+import { BriefingsRepository } from '@/repositories/BriefingsRepository';
 
-export function createBriefingRoutes(briefingRepo: BriefingRepository): Router {
+export function createBriefingsRoutes(briefingRepo: BriefingsRepository): Router {
   const router = Router();
 
   // GET /api/briefings/:id

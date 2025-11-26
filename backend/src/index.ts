@@ -3,8 +3,8 @@ import { Pool } from 'pg';
 import { createDatabasePool, closeDatabasePool } from '@/lib/database';
 import { config } from '@/config/backend';
 import { logger } from '@/lib/logger';
-import { BriefingRepository } from '@/repositories/BriefingRepository';
-import { createBriefingRoutes } from '@/routes/briefings.route';
+import { BriefingsRepository } from '@/repositories/BriefingsRepository';
+import { createBriefingsRoutes } from '@/routes/briefings.route';
 
 async function startServer() {
   const app = express();
@@ -18,7 +18,7 @@ async function startServer() {
   const pool: Pool = createDatabasePool();
 
   // Routes
-  app.use('/api/briefings', createBriefingRoutes(new BriefingRepository(pool)));
+  app.use('/api/briefings', createBriefingsRoutes(new BriefingsRepository(pool)));
 
   // Health check
   app.get('/health', (req, res) => {
@@ -33,7 +33,7 @@ async function startServer() {
   // Graceful shutdown
   const shutdown = async () => {
     logger.info('Shutting down...');
-    
+
     server.close(async () => {
       logger.info('HTTP server closed');
       await closeDatabasePool(pool);
