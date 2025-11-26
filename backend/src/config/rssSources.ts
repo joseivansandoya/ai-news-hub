@@ -1,6 +1,6 @@
 import { RSSSource } from '@/types';
 
-export const rssSources: RSSSource[] = [
+export const RSS_SOURCES: RSSSource[] = [
   {
     name: 'The Verge',
     url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',
