@@ -34,10 +34,11 @@ export function createDatabasePool(): Pool {
     if (err) {
       logger.error('Database connection test failed', { error: err.message });
       process.exit(1);
+    } else {
+      logger.info('Database connected successfully', {
+        timestamp: result.rows[0].now
+      });
     }
-    logger.info('Database connected successfully', { 
-      timestamp: result.rows[0].now 
-    });
   });
 
   return pool;
@@ -49,8 +50,8 @@ export async function closeDatabasePool(pool: Pool): Promise<void> {
     await pool.end();
     logger.info('Database pool closed gracefully');
   } catch (error) {
-    logger.error('Error closing database pool', { 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    logger.error('Error closing database pool', {
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
     throw error;
   }

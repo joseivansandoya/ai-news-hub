@@ -1,24 +1,56 @@
-import express, { Request, Response } from 'express';
-
+import express from 'express';
+import { Pool } from 'pg';
+import { createDatabasePool, closeDatabasePool } from '@/lib/database';
 import { config } from '@/config/backend';
-import briefingsRouter from '@/routes/briefings.route';
-import healthRouter from '@/routes/health.route';
-import storiesRouter from '@/routes/stories.route';
+import { logger } from '@/lib/logger';
+import { BriefingRepository } from '@/repositories/BriefingRepository';
+import { createBriefingRoutes } from '@/routes/briefings.route';
 
-const app = express();
-const PORT = config.port;
+async function startServer() {
+  const app = express();
+  const port = config.port;
 
-// Middleware
-app.use(express.json());
+  // Middleware
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/health', healthRouter);
-app.use('/api/briefings', briefingsRouter);
-app.use('/api/stories', storiesRouter);
-app.get('/', (req: Request, res: Response) => {
-  res.send('AI News Hub');
-});
+  // Create database pool
+  const pool: Pool = createDatabasePool();
 
-app.listen(PORT, () => {
-  console.log(`✅ Backend running on http://localhost:${PORT}`);
+  // Routes
+  app.use('/api/briefings', createBriefingRoutes(new BriefingRepository(pool)));
+
+  // Health check
+  app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  // Start server
+  const server = app.listen(port, () => {
+    logger.info('Server started', { port });
+  });
+
+  // Graceful shutdown
+  const shutdown = async () => {
+    logger.info('Shutting down...');
+    
+    server.close(async () => {
+      logger.info('HTTP server closed');
+      await closeDatabasePool(pool);
+      process.exit(0);
+    });
+
+    setTimeout(() => {
+      logger.error('Forced shutdown');
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
+}
+
+startServer().catch((error) => {
+  logger.error('Failed to start server', { error: error.message });
+  process.exit(1);
 });
