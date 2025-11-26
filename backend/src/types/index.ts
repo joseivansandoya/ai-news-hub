@@ -49,3 +49,56 @@ export interface CreateBriefingDTO {
 export interface UpdateBriefingDTO {
   metadata?: BriefingMetadata;
 }
+
+// Stories types
+export interface Story {
+  id: string;
+  briefingId: string;
+  title: string;
+  summary: string[];
+  content: string[];
+  sourceUrl: string;
+  sourceName: string;
+  publishedAt: Date;
+  coverImageUrl: string | null;
+  displayOrder: number;
+  category: string | null;
+  importance: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateStoryDTO {
+  briefingId: string;
+  title: string;
+  summary: string[];
+  content: string[];
+  sourceUrl: string;
+  sourceName: string;
+  publishedAt: Date;
+  coverImageUrl?: string | null;
+  displayOrder: number;
+  category?: string | null;
+  importance?: number | null;
+}
+
+export interface UpdateStoryDTO {
+  title?: string;
+  summary?: string[];
+  content?: string[];
+  sourceUrl?: string;
+  sourceName?: string;
+  publishedAt?: Date;
+  coverImageUrl?: string | null;
+  displayOrder?: number;
+  category?: string | null;
+  importance?: number | null;
+}
+
+// RSS sources types
+export interface RSSSource {
+  name: string;
+  url: string;
+  weight: number;
+}
+
