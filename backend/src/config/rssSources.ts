@@ -12,9 +12,9 @@ export const RSS_SOURCES: RSSSource[] = [
     weight: 1.0,
   },
   {
-    name: 'ArXiv AI',
-    url: 'https://rss.arxiv.org/rss/cs.AI',
-    weight: 0.8,
+    name: 'Wired',
+    url: 'https://www.wired.com/feed/tag/ai/latest/rss',
+    weight: 1.0,
   },
   {
     name: 'Import AI',

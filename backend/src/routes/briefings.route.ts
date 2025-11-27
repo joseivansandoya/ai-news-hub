@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { BriefingsRepository } from '@/repositories/BriefingsRepository';
+import { BriefingsService } from '@/services/BriefingsService';
 
 export function createBriefingsRoutes(briefingRepo: BriefingsRepository): Router {
   const router = Router();
@@ -61,8 +62,12 @@ export function createBriefingsRoutes(briefingRepo: BriefingsRepository): Router
   // POST /api/briefings
   router.post('/', async (req: Request, res: Response) => {
     try {
-      const briefing = await briefingRepo.create(req.body);
-      res.status(201).json({ briefing });
+      const briefingsService = new BriefingsService();
+      const results = await briefingsService.generate();
+      res.json({results});
+
+      // const briefing = await briefingRepo.create(req.body);
+      // res.status(201).json({ briefing });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' });
     }

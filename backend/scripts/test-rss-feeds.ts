@@ -46,7 +46,7 @@ async function testFeeds(): Promise<void> {
         contentLength: wordCount,
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.log(`   ❌ Failed: ${error.message}`);
 
       results.push({
