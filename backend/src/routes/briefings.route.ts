@@ -63,13 +63,13 @@ export function createBriefingsRoutes(briefingRepo: BriefingsRepository): Router
   router.post('/', async (req: Request, res: Response) => {
     try {
       const briefingsService = new BriefingsService();
-      const results = await briefingsService.generate();
-      res.json({results});
+      const result = await briefingsService.generate();
+      res.json(result.object);
 
       // const briefing = await briefingRepo.create(req.body);
       // res.status(201).json({ briefing });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error });
     }
   });
 
