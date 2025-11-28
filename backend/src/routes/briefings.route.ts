@@ -22,7 +22,7 @@ export function createBriefingsRoutes(briefingRepo: BriefingsRepository): Router
 
       res.json({ briefing });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error });
     }
   });
 
@@ -51,7 +51,7 @@ export function createBriefingsRoutes(briefingRepo: BriefingsRepository): Router
 
       res.json({ briefing });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error });
     }
   });
 
@@ -61,7 +61,7 @@ export function createBriefingsRoutes(briefingRepo: BriefingsRepository): Router
       await briefingRepo.softDelete(req.params.id);
       res.status(204).send();
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error });
     }
   });
 

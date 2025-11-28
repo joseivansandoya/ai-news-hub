@@ -102,3 +102,11 @@ export interface RSSSource {
   weight: number;
 }
 
+export interface RSSResult {
+  title: string;
+  link: string;
+  pubDate: string;
+  source: string;
+  content: string;
+}
+
