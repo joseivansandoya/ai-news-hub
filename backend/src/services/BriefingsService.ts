@@ -12,6 +12,7 @@ export class BriefingsService {
 
   async generate() {
     const rssResults = await this.extractRSSFeedData(RSS_SOURCES);
+    // return rssResults;
     const llmResponse = await this.deduplicateAndSelectStories(rssResults);
     const llmTokensUsed = llmResponse.usage.totalTokens;
     const inputTokens = llmResponse.usage.inputTokens || 0;
@@ -47,7 +48,7 @@ export class BriefingsService {
       for (const item of feed.items) {
         const pubDate = item.pubDate ? new Date(item.pubDate) : null;
         const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setDate(yesterday.getDate() - 2);
 
         if (pubDate && pubDate >= yesterday) {
           rssResults.push({
