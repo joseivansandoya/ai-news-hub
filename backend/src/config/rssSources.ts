@@ -52,28 +52,3 @@ export const CONTENT_FILTER_CONFIG = {
   /** Maximum content length (words) to send to LLM */
   maxContentLength: 1000, // Truncate long articles to save tokens
 };
-
-/**
- * Deduplication configuration
- */
-export const DEDUPLICATION_CONFIG = {
-  /** Title similarity threshold (0.0 - 1.0) */
-  titleSimilarityThreshold: 0.8, // 80% similar = duplicate
-  
-  /** Check URL similarity (not just title) */
-  checkUrlSimilarity: true,
-};
-
-/**
- * Ranking configuration
- */
-export const RANKING_CONFIG = {
-  /** Weight for recency in ranking (0.0 - 1.0) */
-  recencyWeight: 0.7, // 70% of importance score
-  
-  /** Weight for source credibility (0.0 - 1.0) */
-  credibilityWeight: 0.3, // 30% of importance score
-  
-  /** Number of top stories to select for briefing */
-  topStoriesCount: 7,
-};
