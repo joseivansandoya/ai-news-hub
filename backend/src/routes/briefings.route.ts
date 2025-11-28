@@ -31,7 +31,7 @@ export function createBriefingsRoutes(briefingRepo: BriefingsRepository): Router
     try {
       const briefingsService = new BriefingsService();
       const result = await briefingsService.generate();
-      res.json(result.object);
+      res.json(result);
 
       // const briefing = await briefingRepo.create(req.body);
       // res.status(201).json({ briefing });

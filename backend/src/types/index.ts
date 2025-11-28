@@ -32,7 +32,6 @@ export interface Briefing {
 }
 
 export interface BriefingMetadata {
-  sourcesChecked: string[];
   totalItemsFetched: number;
   storiesAfterDedup: number;
   generationTimeMs: number;

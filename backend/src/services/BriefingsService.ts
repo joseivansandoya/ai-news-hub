@@ -12,7 +12,28 @@ export class BriefingsService {
 
   async generate() {
     const rssResults = await this.extractRSSFeedData(RSS_SOURCES);
-    return this.deduplicateAndSelectStories(rssResults);
+    const llmResponse = await this.deduplicateAndSelectStories(rssResults);
+    const llmTokensUsed = llmResponse.usage.totalTokens;
+    const inputTokens = llmResponse.usage.inputTokens || 0;
+    const outputTokens = llmResponse.usage.outputTokens || 0;
+
+    // GPT-4o pricing
+    const inputRate = 2.50 / 1000000;
+    const outputRate = 10.00 / 1000000;
+    const llmCost = (inputTokens * inputRate) + (outputTokens * outputRate);
+
+    const result = {
+      stories: llmResponse.object[0],
+      metadata: {
+        totalItemsFetched: rssResults.length,
+        storiesAfterDedup: llmResponse.object[0].length,
+        generationTimeMs: llmResponse.response.headers?.['openai-processing-ms'] || 0,
+        llmTokensUsed,
+        llmCost,
+      },
+    };
+
+    return result;
   }
 
   private async extractRSSFeedData(sources: RSSSource[]): Promise<RSSResult[]> {
