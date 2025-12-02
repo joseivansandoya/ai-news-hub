@@ -17,11 +17,7 @@ export class BriefingsService {
     const llmTokensUsed = llmResponse.usage.totalTokens || 0;
     const inputTokens = llmResponse.usage.inputTokens || 0;
     const outputTokens = llmResponse.usage.outputTokens || 0;
-
-    // GPT-4o pricing
-    const inputRate = 2.50 / 1000000;
-    const outputRate = 10.00 / 1000000;
-    const llmCost = (inputTokens * inputRate) + (outputTokens * outputRate);
+    const llmCost = this.calculateLLMCost(inputTokens, outputTokens);
 
     return {
       stories: llmResponse.object[0],
@@ -76,5 +72,14 @@ export class BriefingsService {
       system: deduplicateAndSelectStoriesPrompt,
       prompt: JSON.stringify(stories),
     });
+  }
+
+  private calculateLLMCost(inputTokens: number, outputTokens: number) {
+    // GPT-4o pricing
+    const inputRate = 2.50 / 1000000;
+    const outputRate = 10.00 / 1000000;
+    const llmCost = (inputTokens * inputRate) + (outputTokens * outputRate);
+
+    return llmCost;
   }
 }
