@@ -4,6 +4,7 @@ import { createDatabasePool, closeDatabasePool } from '@/lib/database';
 import { config } from '@/config/backend';
 import { logger } from '@/lib/logger';
 import { BriefingsRepository } from '@/repositories/BriefingsRepository';
+import { StoriesRepository } from '@/repositories/StoriesRepository';
 import { createBriefingsRoutes } from '@/routes/briefings.route';
 
 async function startServer() {
@@ -18,7 +19,10 @@ async function startServer() {
   const pool: Pool = createDatabasePool();
 
   // Routes
-  app.use('/api/briefings', createBriefingsRoutes(new BriefingsRepository(pool)));
+  app.use('/api/briefings', createBriefingsRoutes(
+    new BriefingsRepository(pool),
+    new StoriesRepository(pool)
+  ));
 
   // Health check
   app.get('/health', (req, res) => {

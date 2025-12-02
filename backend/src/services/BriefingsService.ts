@@ -14,7 +14,7 @@ export class BriefingsService {
     const rssResults = await this.extractRSSFeedData(RSS_SOURCES);
     // return rssResults;
     const llmResponse = await this.deduplicateAndSelectStories(rssResults);
-    const llmTokensUsed = llmResponse.usage.totalTokens;
+    const llmTokensUsed = llmResponse.usage.totalTokens || 0;
     const inputTokens = llmResponse.usage.inputTokens || 0;
     const outputTokens = llmResponse.usage.outputTokens || 0;
 
@@ -23,18 +23,16 @@ export class BriefingsService {
     const outputRate = 10.00 / 1000000;
     const llmCost = (inputTokens * inputRate) + (outputTokens * outputRate);
 
-    const result = {
+    return {
       stories: llmResponse.object[0],
       metadata: {
         totalItemsFetched: rssResults.length,
         storiesAfterDedup: llmResponse.object[0].length,
-        generationTimeMs: llmResponse.response.headers?.['openai-processing-ms'] || 0,
+        generationTimeMs: parseInt(llmResponse.response.headers?.['openai-processing-ms'] || '0'),
         llmTokensUsed,
         llmCost,
       },
     };
-
-    return result;
   }
 
   private async extractRSSFeedData(sources: RSSSource[]): Promise<RSSResult[]> {

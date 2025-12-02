@@ -1,8 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { BriefingsRepository } from '@/repositories/BriefingsRepository';
+import { StoriesRepository } from '@/repositories/StoriesRepository';
 import { BriefingsService } from '@/services/BriefingsService';
+import { Briefing, CreateBriefingDTO, UpdateBriefingDTO, CreateStoryDTO } from '@/types';
 
-export function createBriefingsRoutes(briefingRepo: BriefingsRepository): Router {
+export function createBriefingsRoutes(
+  briefingRepo: BriefingsRepository,
+  storiesRepo: StoriesRepository
+): Router {
   const router = Router();
 
   // GET /api/briefings/date/:date
@@ -31,11 +36,34 @@ export function createBriefingsRoutes(briefingRepo: BriefingsRepository): Router
     try {
       const briefingsService = new BriefingsService();
       const result = await briefingsService.generate();
-      res.json(result);
+      // res.json(result);
+      // store briefing in DB
+      const briefingDto: CreateBriefingDTO = {
+        userId: "32081148-16d1-4dfb-bc70-835af4d16122", // hardcoded for now
+        date: new Date().toISOString(),
+        metadata: result.metadata,
+      };
+      const briefing = await briefingRepo.create(briefingDto);
 
-      // const briefing = await briefingRepo.create(req.body);
-      // res.status(201).json({ briefing });
+      const storiesDtos: CreateStoryDTO[] = result.stories.map((story: any, index: number) => ({
+        briefingId: briefing.id,
+        title: story.title,
+        summary: [], // Not provided by service yet
+        content: [story.content], // Service returns string, DTO expects array
+        sourceUrl: story.url,
+        sourceName: story.sourceName,
+        publishedAt: new Date(), // Not provided by service, using current time
+        displayOrder: index,
+        coverImageUrl: null,
+        category: null,
+        importance: null,
+      }));
+
+      const stories = await storiesRepo.createMany(storiesDtos);
+
+      res.json({ briefing, stories });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error });
     }
   });
