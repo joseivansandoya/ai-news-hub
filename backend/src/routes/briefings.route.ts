@@ -2,10 +2,10 @@ import { Router, Request, Response } from 'express';
 import { BriefingsRepository } from '@/repositories/BriefingsRepository';
 import { StoriesRepository } from '@/repositories/StoriesRepository';
 import { BriefingsService } from '@/services/BriefingsService';
-import { Briefing, CreateBriefingDTO, UpdateBriefingDTO, CreateStoryDTO } from '@/types';
+import { CreateBriefingDTO, CreateStoryDTO } from '@/types';
 
 export function createBriefingsRoutes(
-  briefingRepo: BriefingsRepository,
+  briefingsRepo: BriefingsRepository,
   storiesRepo: StoriesRepository
 ): Router {
   const router = Router();
@@ -19,7 +19,7 @@ export function createBriefingsRoutes(
         return res.status(400).json({ error: 'x-user-id header required' });
       }
 
-      const briefing = await briefingRepo.findByDate(req.params.date, userId);
+      const briefing = await briefingsRepo.findByDate(req.params.date, userId);
 
       if (!briefing) {
         return res.status(404).json({ error: 'Briefing not found' });
@@ -43,7 +43,7 @@ export function createBriefingsRoutes(
         date: new Date().toISOString(),
         metadata: result.metadata,
       };
-      const briefing = await briefingRepo.create(briefingDto);
+      const briefing = await briefingsRepo.create(briefingDto);
 
       const storiesDtos: CreateStoryDTO[] = result.stories.map((story: any, index: number) => ({
         briefingId: briefing.id,
@@ -71,7 +71,7 @@ export function createBriefingsRoutes(
   // PATCH /api/briefings/:id
   router.patch('/:id', async (req: Request, res: Response) => {
     try {
-      const briefing = await briefingRepo.update(req.params.id, req.body);
+      const briefing = await briefingsRepo.update(req.params.id, req.body);
 
       if (!briefing) {
         return res.status(404).json({ error: 'Briefing not found' });
@@ -86,7 +86,7 @@ export function createBriefingsRoutes(
   // DELETE /api/briefings/:id (soft delete)
   router.delete('/:id', async (req: Request, res: Response) => {
     try {
-      await briefingRepo.softDelete(req.params.id);
+      await briefingsRepo.softDelete(req.params.id);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error });

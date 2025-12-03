@@ -4,8 +4,10 @@ import { createDatabasePool, closeDatabasePool } from '@/lib/database';
 import { config } from '@/config/backend';
 import { logger } from '@/lib/logger';
 import { BriefingsRepository } from '@/repositories/BriefingsRepository';
+import { UsersRepository } from '@/repositories/UsersRepository';
 import { StoriesRepository } from '@/repositories/StoriesRepository';
 import { createBriefingsRoutes } from '@/routes/briefings.route';
+import { createUsersRoutes } from '@/routes/users.route';
 
 async function startServer() {
   const app = express();
@@ -22,6 +24,10 @@ async function startServer() {
   app.use('/api/briefings', createBriefingsRoutes(
     new BriefingsRepository(pool),
     new StoriesRepository(pool)
+  ));
+
+  app.use('/api/users', createUsersRoutes(
+    new UsersRepository(pool)
   ));
 
   // Health check

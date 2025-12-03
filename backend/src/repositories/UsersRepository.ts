@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { BaseRepository } from '@/repositories/BaseRepository';
 import { User, CreateUserDTO, UpdateUserDTO } from '@/types';
 
-export class UserRepository extends BaseRepository {
+export class UsersRepository extends BaseRepository {
   constructor(pool: Pool) {
     super(pool);
   }
