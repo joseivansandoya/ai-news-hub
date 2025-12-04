@@ -19,7 +19,15 @@ export function createBriefingsRoutes(
         return res.status(400).json({ error: 'x-user-id header required' });
       }
 
-      const briefing = await briefingsRepo.findByDate(req.params.date, userId);
+      const date = req.params.date;
+
+      // Validate date format YYYY-MM-DD
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(date)) {
+        return res.status(400).json({ error: 'Invalid date format. Expected YYYY-MM-DD' });
+      }
+
+      const briefing = await briefingsRepo.findByDate(date, userId);
 
       if (!briefing) {
         return res.status(404).json({ error: 'Briefing not found' });
@@ -39,7 +47,7 @@ export function createBriefingsRoutes(
       // res.json(result);
       // store briefing in DB
       const briefingDto: CreateBriefingDTO = {
-        userId: "32081148-16d1-4dfb-bc70-835af4d16122", // hardcoded for now
+        userId: "f7d70e05-8fd0-4edf-8d45-68b8c26567f2", // hardcoded for now
         date: new Date().toISOString(),
         metadata: result.metadata,
       };

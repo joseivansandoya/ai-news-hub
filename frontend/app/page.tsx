@@ -1,6 +1,18 @@
+'use client';
+
 import Link from "next/link";
 
-export default async function Home() {
+import useUserId from "./hooks/useUserId";
+import useBriefing from "./hooks/useBriefing";
+
+export default function Home() {
+  // check in the local storate the userId value
+  const userId = useUserId();
+  const { briefing, loading, error } = useBriefing(userId);
+
+  console.log('>>> userId', userId);
+  console.log('>>> briefing', briefing);
+
   return (
     <div className="p-4">
       <main className="">

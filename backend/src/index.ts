@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { Pool } from 'pg';
 import { createDatabasePool, closeDatabasePool } from '@/lib/database';
 import { config } from '@/config/backend';
@@ -14,6 +15,9 @@ async function startServer() {
   const port = config.port;
 
   // Middleware
+  app.use(cors({
+    origin: 'http://localhost:3000',
+  }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 

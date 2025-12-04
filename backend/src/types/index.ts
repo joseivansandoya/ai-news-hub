@@ -29,6 +29,7 @@ export interface Briefing {
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+  stories?: Story[];
 }
 
 export interface BriefingMetadata {
