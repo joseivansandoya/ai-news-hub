@@ -50,7 +50,7 @@ export default function useBriefing(userId: string | null): UseBriefingResult {
       setError(null);
 
       try {
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const today = new Date().toLocaleDateString('en-CA');
         const response = await fetch(`http://localhost:3005/api/briefings/date/${today}`, {
           headers: {
             'x-user-id': userId,

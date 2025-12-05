@@ -42,13 +42,21 @@ export function createBriefingsRoutes(
   // POST /api/briefings
   router.post('/', async (req: Request, res: Response) => {
     try {
+      const userId = req.headers['x-user-id'] as string;
+
+      if (!userId) {
+        return res.status(400).json({ error: 'x-user-id header required' });
+      }
+
       const briefingsService = new BriefingsService();
       const result = await briefingsService.generate();
-      // res.json(result);
       // store briefing in DB
+      // Use local time for the date (YYYY-MM-DD)
+      const localDate = new Date().toLocaleDateString('en-CA');
+
       const briefingDto: CreateBriefingDTO = {
-        userId: "f7d70e05-8fd0-4edf-8d45-68b8c26567f2", // hardcoded for now
-        date: new Date().toISOString(),
+        userId: userId,
+        date: localDate,
         metadata: result.metadata,
       };
       const briefing = await briefingsRepo.create(briefingDto);
