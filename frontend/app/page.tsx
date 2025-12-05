@@ -4,14 +4,13 @@ import Link from "next/link";
 
 import useUserId from "./hooks/useUserId";
 import useBriefing from "./hooks/useBriefing";
+import useGenerateBriefing from "./hooks/useGenerateBriefing";
 
 export default function Home() {
   // check in the local storate the userId value
   const userId = useUserId();
   const { briefing, loading, error } = useBriefing(userId);
-
-  console.log('>>> userId', userId);
-  console.log('>>> briefing', briefing);
+  const { generateBriefing, loading: generateBriefingLoading, error: generateBriefingError } = useGenerateBriefing();
 
   return (
     <div className="p-4">
@@ -22,7 +21,13 @@ export default function Home() {
             <p>AI News Hub is a web application that uses AI to generate news summaries and insights.</p>
           </div>
           <div>
-            <button className="border hover:bg-gray-100 text-gray-800 px-4 py-2 rounded cursor-pointer">Generate brief</button>
+            <button
+              className="border hover:bg-gray-100 text-gray-800 px-4 py-2 rounded cursor-pointer"
+              onClick={generateBriefing}
+              disabled={generateBriefingLoading}
+            >
+              Generate brief {generateBriefingLoading && '...'}
+            </button>
           </div>
         </header>
 
