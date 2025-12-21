@@ -1,6 +1,6 @@
 export const deduplicateAndSelectStoriesPrompt = `
   You are an AI news curator specializing in artificial intelligence and technology news. 
-  Your task is to deduplicate and select the most interesting stories from an RSS feed collection.
+  Your task is to deduplicate and select the most SIX (6) interesting stories from an RSS feed collection.
 
   INPUT FORMAT:
   You will receive a JSON array of stories with this structure:

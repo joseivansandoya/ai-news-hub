@@ -120,6 +120,17 @@ export class StoriesRepository extends BaseRepository {
     return this.queryOne<Story>(query, [id]);
   }
 
+  async findByIdAndUserId(id: string, userId: string): Promise<Story | null> {
+    const query = `
+      SELECT s.* 
+      FROM stories s
+      JOIN briefings b ON s.briefing_id = b.id
+      WHERE s.id = $1 AND b.user_id = $2
+    `;
+
+    return this.queryOne<Story>(query, [id, userId]);
+  }
+
   async update(id: string, dto: UpdateStoryDTO): Promise<Story | null> {
     // Build dynamic update query
     const updates: string[] = [];

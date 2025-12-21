@@ -12,7 +12,6 @@ export class BriefingsService {
 
   async generate() {
     const rssResults = await this.extractRSSFeedData(RSS_SOURCES);
-    // return rssResults;
     const llmResponse = await this.deduplicateAndSelectStories(rssResults);
     const llmTokensUsed = llmResponse.usage.totalTokens || 0;
     const inputTokens = llmResponse.usage.inputTokens || 0;
