@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 import { use } from "react";
 import useUserId from "../../hooks/useUserId";
 import useStory from "../../hooks/useStory";
@@ -12,7 +13,7 @@ export default function NewsItem(props: PageProps<'/news/[id]'>) {
   return (
     <div className="p-4 flex gap-4">
       <div className="border p-4 rounded w-64">
-        <p>Sidebar</p>
+        <Link href="/">AI News Hub</Link>
       </div>
       <div className="flex-1 border p-4 rounded">
         <h1>News Title - {story?.title}</h1>
