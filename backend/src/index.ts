@@ -8,6 +8,7 @@ import { BriefingsRepository } from '@/repositories/BriefingsRepository';
 import { UsersRepository } from '@/repositories/UsersRepository';
 import { StoriesRepository } from '@/repositories/StoriesRepository';
 import { createBriefingsRoutes } from '@/routes/briefings.route';
+import { createStoriesRoutes } from '@/routes/stories.route';
 import { createUsersRoutes } from '@/routes/users.route';
 
 async function startServer() {
@@ -27,6 +28,10 @@ async function startServer() {
   // Routes
   app.use('/api/briefings', createBriefingsRoutes(
     new BriefingsRepository(pool),
+    new StoriesRepository(pool)
+  ));
+
+  app.use('/api/stories', createStoriesRoutes(
     new StoriesRepository(pool)
   ));
 

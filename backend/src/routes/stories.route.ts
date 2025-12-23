@@ -21,7 +21,7 @@ export function createStoriesRoutes(
         return res.status(404).json({ error: 'Story not found' });
       }
 
-      res.json({ story });
+      res.json(story);
     } catch (error) {
       res.status(500).json({ error });
     }
