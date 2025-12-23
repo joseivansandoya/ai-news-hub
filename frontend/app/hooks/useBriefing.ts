@@ -33,6 +33,7 @@ interface UseBriefingResult {
   briefing: Briefing | null;
   loading: boolean;
   error: string | null;
+  fetchBriefing: (userId: string) => Promise<void>;
 }
 
 export default function useBriefing(userId: string | null): UseBriefingResult {
@@ -40,44 +41,44 @@ export default function useBriefing(userId: string | null): UseBriefingResult {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchBriefing = async (userId: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const today = new Date().toLocaleDateString('en-CA');
+      const response = await fetch(`http://localhost:3005/api/briefings/date/${today}`, {
+        headers: {
+          'x-user-id': userId,
+        },
+      });
+
+      if (response.status === 404) {
+        setBriefing(null);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch briefing: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setBriefing(data.briefing);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setBriefing(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!userId) {
       return;
     }
 
-    const fetchBriefing = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const today = new Date().toLocaleDateString('en-CA');
-        const response = await fetch(`http://localhost:3005/api/briefings/date/${today}`, {
-          headers: {
-            'x-user-id': userId,
-          },
-        });
-
-        if (response.status === 404) {
-          setBriefing(null);
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch briefing: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        setBriefing(data.briefing);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
-        setBriefing(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBriefing();
+    fetchBriefing(userId);
   }, [userId]);
 
-  return { briefing, loading, error };
+  return { briefing, loading, error, fetchBriefing };
 }

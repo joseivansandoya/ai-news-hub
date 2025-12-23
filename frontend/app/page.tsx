@@ -8,8 +8,14 @@ import StoryLink from "./components/StoryLink/StoryLink";
 export default function Home() {
   // check in the local storate the userId value
   const userId = useUserId();
-  const { briefing, loading, error } = useBriefing(userId);
+  const { briefing, loading, error, fetchBriefing } = useBriefing(userId);
   const { generateBriefing, loading: generateBriefingLoading, error: generateBriefingError } = useGenerateBriefing();
+
+  const handleGenerateBriefing = async () => {
+    if (!userId) return;
+    await generateBriefing();
+    await fetchBriefing(userId);
+  };
 
   return (
     <div className="p-4">
@@ -22,7 +28,7 @@ export default function Home() {
           <div>
             <button
               className="border hover:bg-gray-100 text-gray-800 px-4 py-2 rounded cursor-pointer"
-              onClick={generateBriefing}
+              onClick={handleGenerateBriefing}
               disabled={generateBriefingLoading}
             >
               Generate brief {generateBriefingLoading && '...'}
