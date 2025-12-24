@@ -67,6 +67,10 @@ export default function Home() {
               ))}
             </div>
           )}
+
+          {(!loading && (!briefing || !briefing?.stories?.length)) && (
+            <p>No stories found</p>
+          )}
         </div>
 
       </main>

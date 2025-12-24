@@ -16,11 +16,17 @@ export default function NewsItem(props: PageProps<'/news/[id]'>) {
         <Link href="/">AI News Hub</Link>
       </div>
       <div className="flex-1 border p-4 rounded">
-        <h1>News Title - {story?.title}</h1>
-        <p>News date - {story?.publishedAt?.toString() ?? ''}</p>
-        <p>News source - {story?.sourceName}</p>
-        <p>News image - {story?.coverImageUrl}</p>
-        <p>News content - {story?.content?.join('') ?? ''}</p>
+        {(!loading && !story) ? (
+          <p>Story not found</p>
+        ) : (
+          <div>
+            <h1>News Title - {story?.title}</h1>
+            <p>News date - {story?.publishedAt?.toString() ?? ''}</p>
+            <p>News source - {story?.sourceName}</p>
+            <p>News image - {story?.coverImageUrl}</p>
+            <p>News content - {story?.content?.join('') ?? ''}</p>
+          </div>
+        )}
       </div>
     </div>
   )
