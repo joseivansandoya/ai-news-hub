@@ -71,10 +71,11 @@ export class BriefingsRepository extends BaseRepository {
         ) as stories
       FROM briefings b
       LEFT JOIN stories s ON b.id = s.briefing_id
-      WHERE b.date = $1 
-        AND b.user_id = $2 
+      WHERE b.date = $1
+        AND b.user_id = $2
         AND b.deleted_at IS NULL
       GROUP BY b.id
+      ORDER BY b.created_at DESC
       LIMIT 1
     `;
 

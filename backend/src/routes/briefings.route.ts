@@ -49,10 +49,13 @@ export function createBriefingsRoutes(
       }
 
       const briefingsService = new BriefingsService();
-      const result = await briefingsService.generate();
-      // store briefing in DB
+      const result = await briefingsService.generateWithWebSearch();
+
       // Use local time for the date (YYYY-MM-DD)
       const localDate = new Date().toLocaleDateString('en-CA');
+
+      // Soft delete any existing briefings for this date before creating new one
+      await briefingsRepo.softDeleteByDate(localDate, userId);
 
       const briefingDto: CreateBriefingDTO = {
         userId: userId,

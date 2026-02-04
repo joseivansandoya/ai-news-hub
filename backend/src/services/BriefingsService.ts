@@ -1,11 +1,15 @@
 import Parser from 'rss-parser';
-import { generateObject } from 'ai';
+import { generateObject, generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 
 import { RSS_SOURCES, RSS_PARSER_CONFIG } from '@/config/rssSources';
 import { RSSResult, RSSSource } from '@/types';
 import { deduplicateAndSelectStoriesPrompt } from '@/services/prompts/deduplicateAndSelectStories';
+import {
+  webSearchStoriesPrompt,
+  curateAndSummarizeStoriesPrompt,
+} from '@/services/prompts/webSearchStories';
 
 export class BriefingsService {
   constructor() { }
@@ -81,4 +85,120 @@ export class BriefingsService {
 
     return llmCost;
   }
+
+  /**
+   * POC: Generate briefing using LLM-orchestrated web search instead of RSS feeds.
+   *
+   * Workflow:
+   * 1. SEARCH PHASE: LLM uses web search tool to find top AI news (at least 10 stories)
+   * 2. CURATE PHASE: LLM deduplicates, ranks, and summarizes into exactly 6 stories
+   *
+   * This method returns the same data structure as generate() for compatibility.
+   */
+  async generateWithWebSearch() {
+    // Phase 1: Web Search - LLM searches for AI news
+    const searchResult = await this.searchForStories();
+    const rawStories = this.parseStoriesFromSearchResult(searchResult.text);
+
+    // Phase 2: Curate & Summarize - LLM processes the gathered stories
+    const curationResult = await this.curateAndSummarizeStories(rawStories);
+
+    // Calculate combined token usage
+    const totalInputTokens =
+      (searchResult.usage?.inputTokens || 0) +
+      (curationResult.usage.inputTokens || 0);
+    const totalOutputTokens =
+      (searchResult.usage?.outputTokens || 0) +
+      (curationResult.usage.outputTokens || 0);
+    const llmTokensUsed = totalInputTokens + totalOutputTokens;
+    const llmCost = this.calculateLLMCost(totalInputTokens, totalOutputTokens);
+
+    return {
+      stories: curationResult.object.stories,
+      metadata: {
+        totalItemsFetched: rawStories.length,
+        storiesAfterDedup: curationResult.object.stories.length,
+        generationTimeMs: 0, // Not available from Responses API in the same way
+        llmTokensUsed,
+        llmCost,
+      },
+    };
+  }
+
+  /**
+   * Phase 1: Use LLM with web search tool to find AI news stories.
+   * The LLM will autonomously search the web and gather news.
+   */
+  private async searchForStories() {
+    return generateText({
+      model: openai.responses('gpt-4o'),
+      prompt: webSearchStoriesPrompt,
+      tools: {
+        web_search_preview: openai.tools.webSearchPreview({
+          searchContextSize: 'high',
+        }),
+      },
+    });
+  }
+
+  /**
+   * Parse the LLM's search response into structured story objects.
+   * The LLM should return JSON, but we handle text gracefully.
+   */
+  private parseStoriesFromSearchResult(text: string): WebSearchStory[] {
+    try {
+      // Try to extract JSON from the response
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (Array.isArray(parsed)) {
+          return parsed.map(story => ({
+            title: story.title || '',
+            content: story.content || story.description || '',
+            url: story.url || story.link || '',
+            sourceName: story.sourceName || story.source || '',
+            publishedAt: story.publishedAt || 'recent',
+          }));
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse search results as JSON:', e);
+    }
+
+    // Fallback: return empty array if parsing fails
+    // In production, you might want to retry or handle this differently
+    return [];
+  }
+
+  /**
+   * Phase 2: Curate and summarize the gathered stories.
+   * Uses structured output to ensure consistent format.
+   */
+  private async curateAndSummarizeStories(stories: WebSearchStory[]) {
+    return generateObject({
+      model: openai('gpt-4o'),
+      schema: z.object({
+        stories: z.array(z.object({
+          title: z.string(),
+          content: z.string(),
+          url: z.string(),
+          sourceName: z.string(),
+        })),
+      }),
+      system: curateAndSummarizeStoriesPrompt,
+      prompt: JSON.stringify(stories),
+    });
+  }
+}
+
+/**
+ * Intermediate type for stories gathered from web search.
+ * This includes publishedAt which is used during curation but not in final output.
+ */
+interface WebSearchStory {
+  title: string;
+  content: string;
+  url: string;
+  sourceName: string;
+  publishedAt: string;
 }
