@@ -1,11 +1,39 @@
-export const webSearchStoriesPrompt = `
-You are an AI news researcher. Your task is to search the web for the most important and recent artificial intelligence news stories.
+export const webSearchStoriesPrompt = (() => {
+  const now = new Date();
+  const today = now.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  return `You are an AI news researcher. Your task is to search the web for the most recent artificial intelligence news stories.
+
+CURRENT DATE & TIME CONTEXT:
+Today is ${today}.
+You are searching for AI news published on ${yesterdayStr} or ${today.split(',')[1].trim()} (within the last 24-48 hours).
+
+CRITICAL RECENCY REQUIREMENT:
+⚠️ ONLY include news articles published within the last 48 hours (${yesterdayStr} - ${today.split(',')[1].trim()}).
+⚠️ DO NOT include older news, even if it seems significant. We only want the LATEST developments.
+⚠️ If you find articles about GPT-4, Claude 3, Bard, or other AI products from 2023-2024, REJECT them - they are too old.
 
 SEARCH STRATEGY:
-1. Search for breaking AI news from the last 24-48 hours
-2. Focus on multiple categories to ensure comprehensive coverage:
+1. Use date-specific search queries:
+   - Include "today", "yesterday", or the actual date in your searches
+   - Try queries like: "AI news ${today.split(',')[1].trim()}", "AI announcements this week", "latest AI developments ${now.getFullYear()}"
+   - Search for "breaking AI news", "AI news today", "recent AI announcements"
+
+2. Focus on multiple categories for comprehensive coverage:
    - Major AI company announcements (OpenAI, Anthropic, Google DeepMind, Meta AI, Microsoft, etc.)
-   - Research breakthroughs and paper releases
+   - Research breakthroughs and paper releases (especially arXiv)
    - AI product launches and updates
    - Industry partnerships and acquisitions
    - AI regulation and policy news
@@ -13,12 +41,15 @@ SEARCH STRATEGY:
 
 3. Prioritize authoritative sources:
    - Official company blogs and announcements
-   - Reputable tech news outlets (TechCrunch, The Verge, Ars Technica, Wired)
+   - Reputable tech news outlets (TechCrunch, The Verge, Ars Technica, Wired, VentureBeat)
    - Research institutions and arxiv
    - Industry analysts and verified reporters
 
-CRITICAL REQUIREMENT:
-You MUST gather AT LEAST 10 distinct news stories. If your initial search yields fewer results, perform additional searches with different queries until you have at least 10 unique stories.
+QUALITY REQUIREMENTS:
+- You MUST gather AT LEAST 10 distinct news stories from the last 48 hours
+- If initial searches yield fewer results, try different date-focused queries
+- Each story MUST be from ${yesterdayStr} or later
+- Verify publication dates when available
 
 OUTPUT FORMAT:
 Return a JSON array with AT LEAST 10 objects. Each object must have:
@@ -27,46 +58,70 @@ Return a JSON array with AT LEAST 10 objects. Each object must have:
   "content": "A brief excerpt or description of what the story covers (2-3 sentences)",
   "url": "The direct URL to the original article",
   "sourceName": "The name of the publication or source",
-  "publishedAt": "The publication date if available, or 'recent' if unknown"
+  "publishedAt": "The publication date (e.g., '${today.split(',')[1].trim()}', '${yesterdayStr}', or ISO format if available)"
 }
 
-IMPORTANT:
-- Only include stories from the last 48 hours
-- Avoid duplicate stories (same event covered by different outlets - pick the best source)
-- Prefer original reporting over aggregated content
-- Include the actual URL to the article, not a search result page
-- If a story seems significant but you're unsure of details, include it anyway - better to over-include
+FINAL CHECKLIST BEFORE RETURNING RESULTS:
+- ✓ All stories are from the last 48 hours (${yesterdayStr} or later)
+- ✓ No old news about GPT-4 launch, Bard announcement, or other 2023-2024 events
+- ✓ At least 10 unique stories included
+- ✓ Publication dates included when available
+- ✓ Diverse topics covered (not all from same company/event)
 
-BEGIN SEARCHING FOR TODAY'S TOP AI NEWS:
+BEGIN SEARCHING FOR THE LATEST AI NEWS FROM ${yesterdayStr} - ${today.split(',')[1].trim()}:
 `;
+})();
 
-export const curateAndSummarizeStoriesPrompt = `
-You are an AI news curator. You have received a collection of AI news stories gathered from web search.
-Your task is to curate and summarize this collection into exactly 6 high-quality news items.
+export const curateAndSummarizeStoriesPrompt = (() => {
+  const now = new Date();
+  const today = now.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+  const twoDaysAgo = new Date(now);
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+  const twoDaysAgoStr = twoDaysAgo.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  return `You are an AI news curator. You have received a collection of AI news stories gathered from web search.
+Your task is to curate and summarize this collection into exactly 6 high-quality, RECENT news items.
+
+CURRENT DATE: ${today}
 
 INPUT:
-You will receive a JSON array of news stories with titles, content excerpts, URLs, and sources.
+You will receive a JSON array of news stories with titles, content excerpts, URLs, sources, and publication dates.
 
 YOUR TASK:
 
-1. DEDUPLICATE:
+0. FILTER BY RECENCY (CRITICAL FIRST STEP):
+   ⚠️ IMMEDIATELY REJECT any story that is NOT from the last 48 hours (must be from ${twoDaysAgoStr} or later)
+   ⚠️ If you see articles about GPT-4 launch, Bard announcement, Claude 3, or other events from 2023-2024, REJECT them
+   ⚠️ Only stories from ${twoDaysAgoStr}, yesterday, or today should be considered
+   ⚠️ If a story has publishedAt: "recent" but the content suggests it's old news, REJECT it
+   ⚠️ RECENCY is the #1 priority - an important old story is WORTHLESS to us
+
+1. DEDUPLICATE (from remaining recent stories):
    - Identify stories covering the same topic/event even if worded differently
    - Keep only ONE story per topic, preferring:
+     * More recent publication (HIGHEST priority)
      * More authoritative source (official blogs > major news sites > aggregators)
      * More detailed content
-     * More recent publication
 
-2. RANK BY SIGNIFICANCE:
-   - Major announcements and breakthroughs (highest priority)
+2. RANK BY SIGNIFICANCE (only among recent stories):
+   - Major announcements and breakthroughs
    - Product launches and updates
    - Research papers and findings
    - Industry news and analysis
    - Opinion and commentary (lowest priority)
 
 3. SELECT EXACTLY 6:
-   - Choose the 6 most significant stories after deduplication
+   - Choose the 6 most significant RECENT stories after filtering and deduplication
    - Ensure diversity of topics when possible (don't pick 6 stories about the same company)
-   - If fewer than 6 unique stories remain after deduplication, include all available
+   - If fewer than 6 recent unique stories remain, include all available (better to return 3 recent stories than include old ones)
 
 4. SUMMARIZE:
    - For each selected story, write a clear, informative summary (2-3 sentences)
@@ -74,7 +129,7 @@ YOUR TASK:
    - Use neutral, journalistic tone
 
 OUTPUT FORMAT:
-Return a JSON object with a "stories" array containing EXACTLY 6 objects:
+Return a JSON object with a "stories" array containing EXACTLY 6 objects (or fewer if not enough recent stories):
 {
   "stories": [
     {
@@ -87,8 +142,11 @@ Return a JSON object with a "stories" array containing EXACTLY 6 objects:
 }
 
 CRITICAL RULES:
-- MUST return EXACTLY 6 stories in the stories array
+- ONLY include stories from the last 48 hours (${twoDaysAgoStr} or later)
+- NO old news under any circumstances - recency > significance
 - Keep title, url, and sourceName exactly as provided
 - Only the "content" field should contain your summary
 - Do not include publishedAt in output
+- Target EXACTLY 6 stories, but fewer is acceptable if not enough recent ones exist
 `;
+})();

@@ -8,8 +8,6 @@ import {
 } from '@/services/prompts/webSearchStories';
 
 export class BriefingsService {
-  constructor() { }
-
   /**
    * Generate briefing using LLM-orchestrated web search.
    *
@@ -36,7 +34,6 @@ export class BriefingsService {
       metadata: {
         totalItemsFetched: rawStories.length,
         storiesAfterDedup: curationResult.object.stories.length,
-        generationTimeMs: 0,
         llmTokensUsed,
         llmCost,
       },
@@ -66,6 +63,7 @@ export class BriefingsService {
 
   /**
    * Parse the LLM's search response into structured story objects.
+   * Filters out stories older than 48 hours as a validation layer.
    */
   private parseStoriesFromSearchResult(text: string): WebSearchStory[] {
     try {
@@ -73,13 +71,19 @@ export class BriefingsService {
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         if (Array.isArray(parsed)) {
-          return parsed.map(story => ({
+          const stories = parsed.map(story => ({
             title: story.title || '',
             content: story.content || story.description || '',
             url: story.url || story.link || '',
             sourceName: story.sourceName || story.source || '',
             publishedAt: story.publishedAt || 'recent',
           }));
+
+          const recentStories = stories.filter(story => this.isStoryRecent(story));
+
+          console.log(`Parsed ${stories.length} stories, ${recentStories.length} are recent (last 48 hours)`);
+
+          return recentStories;
         }
       }
     } catch (e) {
@@ -87,6 +91,54 @@ export class BriefingsService {
     }
 
     return [];
+  }
+
+  /**
+   * Check if a story is from the last 48 hours.
+   */
+  private isStoryRecent(story: WebSearchStory): boolean {
+    const publishedAt = story.publishedAt.toLowerCase();
+
+    if (publishedAt === 'recent') {
+      return true;
+    }
+
+    const recentIndicators = [
+      'today',
+      'yesterday',
+      'hours ago',
+      'hour ago',
+      'minutes ago',
+      'just now',
+      'this morning',
+      'this afternoon',
+      'this evening'
+    ];
+
+    if (recentIndicators.some(indicator => publishedAt.includes(indicator))) {
+      return true;
+    }
+
+    try {
+      const date = new Date(story.publishedAt);
+      if (!isNaN(date.getTime())) {
+        const now = new Date();
+        const twoDaysAgo = new Date(now);
+        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+        if (date >= twoDaysAgo) {
+          return true;
+        } else {
+          console.log(`Filtering out old story: "${story.title}" (published: ${story.publishedAt})`);
+          return false;
+        }
+      }
+    } catch (e) {
+      console.log(`Unable to verify date for: "${story.title}" (publishedAt: ${story.publishedAt}), rejecting`);
+      return false;
+    }
+
+    return false;
   }
 
   /**
