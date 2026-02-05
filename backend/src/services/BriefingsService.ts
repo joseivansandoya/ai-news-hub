@@ -16,6 +16,7 @@ export class BriefingsService {
    * 2. CURATE PHASE: LLM deduplicates, ranks, and summarizes into exactly 6 stories
    */
   async generate() {
+    const startTime = Date.now();
     const searchResult = await this.searchForStories();
     const rawStories = this.parseStoriesFromSearchResult(searchResult.text);
     const curationResult = await this.curateAndSummarizeStories(rawStories);
@@ -28,6 +29,7 @@ export class BriefingsService {
       (curationResult.usage.outputTokens || 0);
     const llmTokensUsed = totalInputTokens + totalOutputTokens;
     const llmCost = this.calculateLLMCost(totalInputTokens, totalOutputTokens);
+    const generationTimeMs = Date.now() - startTime;
 
     return {
       stories: curationResult.object.stories,
@@ -36,6 +38,7 @@ export class BriefingsService {
         storiesAfterDedup: curationResult.object.stories.length,
         llmTokensUsed,
         llmCost,
+        generationTimeMs,
       },
     };
   }
