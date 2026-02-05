@@ -110,6 +110,9 @@ YOUR TASK:
      * More recent publication (HIGHEST priority)
      * More authoritative source (official blogs > major news sites > aggregators)
      * More detailed content
+   - IMPORTANT: Collect ALL URLs from duplicate stories into a "sourceUrls" array
+     * If 3 articles cover the same event, include all 3 URLs in sourceUrls
+     * This provides transparency about multiple sources covering the same story
 
 2. RANK BY SIGNIFICANCE (only among recent stories):
    - Major announcements and breakthroughs
@@ -135,18 +138,33 @@ Return a JSON object with a "stories" array containing EXACTLY 6 objects (or few
     {
       "title": "exact title from input",
       "content": "your 2-3 sentence summary",
-      "url": "exact url from input",
-      "sourceName": "exact source name from input"
+      "url": "exact url from input (primary source)",
+      "sourceName": "exact source name from input",
+      "sourceUrls": ["array of ALL urls that covered this story, including the primary url"]
     }
+  ]
+}
+
+Example: If TechCrunch, The Verge, and Wired all covered "GPT-5 announcement", pick the best one as primary but include all 3 URLs in sourceUrls:
+{
+  "title": "OpenAI Announces GPT-5",
+  "url": "https://techcrunch.com/...",
+  "sourceName": "TechCrunch",
+  "sourceUrls": [
+    "https://techcrunch.com/...",
+    "https://theverge.com/...",
+    "https://wired.com/..."
   ]
 }
 
 CRITICAL RULES:
 - ONLY include stories from the last 48 hours (${twoDaysAgoStr} or later)
 - NO old news under any circumstances - recency > significance
-- Keep title, url, and sourceName exactly as provided
+- Keep title, url, and sourceName exactly as provided from the chosen primary source
 - Only the "content" field should contain your summary
 - Do not include publishedAt in output
+- MUST include sourceUrls array with all URLs covering the same story
+- If only one source covered a story, sourceUrls should contain just that one URL
 - Target EXACTLY 6 stories, but fewer is acceptable if not enough recent ones exist
 `;
 })();

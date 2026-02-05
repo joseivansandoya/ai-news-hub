@@ -76,6 +76,7 @@ export function createBriefingsRoutes(
         coverImageUrl: null,
         category: null,
         importance: null,
+        sourceUrls: story.sourceUrls || [story.url], // Use all source URLs or fallback to primary URL
       }));
 
       const stories = await storiesRepo.createMany(storiesDtos);

@@ -156,6 +156,7 @@ export class BriefingsService {
           content: z.string(),
           url: z.string(),
           sourceName: z.string(),
+          sourceUrls: z.array(z.string()),
         })),
       }),
       system: curateAndSummarizeStoriesPrompt,

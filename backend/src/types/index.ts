@@ -64,6 +64,7 @@ export interface Story {
   displayOrder: number;
   category: string | null;
   importance: number | null;
+  sourceUrls: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -80,6 +81,7 @@ export interface CreateStoryDTO {
   displayOrder: number;
   category?: string | null;
   importance?: number | null;
+  sourceUrls?: string[];
 }
 
 export interface UpdateStoryDTO {
@@ -93,5 +95,6 @@ export interface UpdateStoryDTO {
   displayOrder?: number;
   category?: string | null;
   importance?: number | null;
+  sourceUrls?: string[];
 }
 

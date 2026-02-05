@@ -20,9 +20,10 @@ export class StoriesRepository extends BaseRepository {
         cover_image_url,
         display_order,
         category,
-        importance
+        importance,
+        source_urls
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *
     `;
 
@@ -38,6 +39,7 @@ export class StoriesRepository extends BaseRepository {
       dto.displayOrder,
       dto.category || null,
       dto.importance || null,
+      JSON.stringify(dto.sourceUrls || [dto.sourceUrl]),
     ];
 
     const story = await this.queryOne<Story>(query, params);
@@ -62,7 +64,7 @@ export class StoriesRepository extends BaseRepository {
       placeholders.push(`(
         $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++},
         $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++},
-        $${paramIndex++}, $${paramIndex++}, $${paramIndex++}
+        $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}
       )`);
 
       values.push(
@@ -76,7 +78,8 @@ export class StoriesRepository extends BaseRepository {
         dto.coverImageUrl || null,
         dto.displayOrder,
         dto.category || null,
-        dto.importance || null
+        dto.importance || null,
+        JSON.stringify(dto.sourceUrls || [dto.sourceUrl])
       );
     }
 
@@ -92,7 +95,8 @@ export class StoriesRepository extends BaseRepository {
         cover_image_url,
         display_order,
         category,
-        importance
+        importance,
+        source_urls
       )
       VALUES ${placeholders.join(', ')}
       RETURNING *
@@ -176,6 +180,10 @@ export class StoriesRepository extends BaseRepository {
     if (dto.importance !== undefined) {
       updates.push(`importance = $${paramIndex++}`);
       params.push(dto.importance);
+    }
+    if (dto.sourceUrls !== undefined) {
+      updates.push(`source_urls = $${paramIndex++}`);
+      params.push(JSON.stringify(dto.sourceUrls));
     }
 
     if (updates.length === 0) {
