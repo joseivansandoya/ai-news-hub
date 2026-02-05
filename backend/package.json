@@ -10,8 +10,7 @@
     "start": "node dist/index.js",
     "test": "vitest run",
     "migrate": "tsx scripts/migrate.ts",
-    "test:db": "tsx scripts/test-db.ts",
-    "test:rss": "tsx scripts/test-rss-feeds.ts"
+    "test:db": "tsx scripts/test-db.ts"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +22,6 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "pg": "^8.16.3",
-    "rss-parser": "^3.13.0",
     "winston": "^3.18.3",
     "zod": "^4.1.13"
   },

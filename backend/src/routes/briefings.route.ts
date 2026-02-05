@@ -49,7 +49,7 @@ export function createBriefingsRoutes(
       }
 
       const briefingsService = new BriefingsService();
-      const result = await briefingsService.generateWithWebSearch();
+      const result = await briefingsService.generate();
 
       // Use local time for the date (YYYY-MM-DD)
       const localDate = new Date().toLocaleDateString('en-CA');

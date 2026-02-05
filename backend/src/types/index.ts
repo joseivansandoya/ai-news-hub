@@ -95,18 +95,3 @@ export interface UpdateStoryDTO {
   importance?: number | null;
 }
 
-// RSS sources types
-export interface RSSSource {
-  name: string;
-  url: string;
-  weight: number;
-}
-
-export interface RSSResult {
-  title: string;
-  link: string;
-  pubDate: string;
-  source: string;
-  content: string;
-}
-
